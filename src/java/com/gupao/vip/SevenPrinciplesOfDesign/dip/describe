@@ -1,0 +1,71 @@
+依赖倒置原则
+依赖倒置原则（Dependence Inversion Principle,DIP）是指设计代码结构时，高层模
+块不应该依赖底层模块，二者都应该依赖其抽象。抽象不应该依赖细节；细节应该依赖抽象。
+通过依赖倒置，可以减少类与类之间的耦合性，提高系统的稳定性，提高代码的可读性和可维护性，
+并能够降低修改程序所造成的风险。接下来看一个案例，还是以课
+程为例，先来创建一个类 Tom：
+public class Tom {
+public void studyJavaCourse(){
+System.out.println("Tom在学习Java的课程");
+}
+public void studyPythonCourse(){
+System.out.println("Tom在学习Python的课程"); }
+}
+来调用一下：
+public static void main(String[] args) { Tom tom = new Tom();
+tom.studyJavaCourse(); tom.studyPythonCourse();
+}
+Tom 热爱学习，目前正在学习 Java 课程和 Python 课程。大家都知道，学习也是会上瘾的。随着学习兴趣的暴涨，
+现在 Tom 还想学习 AI 人工智能的课程。这个时候，业务扩展，我们的代码要从底层到高层（调用层）一次修改代码。
+在 Tom 类中增加 studyAICourse()的方法，在高层也要追加调用。如此一来，系统发布以后，实际上是非常不稳定的，
+在修改代码的同时也会带来意想不到的风险。接下来我们优化代码，创建一个课程的抽象 ICourse 接口：
+public interface ICourse { void study();
+}
+然后写 JavaCourse 类：
+public class JavaCourse implements ICourse {
+@Override public void study() {
+System.out.println("Tom在学习Java课程"); }
+}
+再实现 PythonCourse 类：
+public class PythonCourse implements ICourse {
+@Override public void study() {
+System.out.println("Tom在学习Python课程"); }
+}
+修改 Tom 类：
+public class Tom {
+public void study(ICourse course
+){ course.study();
+}
+}
+来看调用：
+public static void main(String[] args) {
+Tom tom = new Tom();
+tom.study(new JavaCourse()); t
+om.study(new PythonCourse());
+}
+我们这时候再看来代码，Tom 的兴趣无论怎么暴涨，对于新的课程，我只需要新建一个类，通过传参的方式告诉 Tom，
+而不需要修改底层代码。实际上这是一种大家非常熟悉的方式，叫依赖注入。注入的方式还有构造器方式和 setter 方式。
+我们来看构造器注入方式：
+public class Tom {
+private ICourse course;
+public Tom(ICourse course){ this.course = course;
+}
+public void study(){ course.study();
+}
+}
+看调用代码：
+public static void main(String[] args) { Tom tom = new Tom(new JavaCourse()); tom.study();
+}
+根据构造器方式注入，在调用时，每次都要创建实例。那么，如果 Tom 是全局单例，则我们就只能选择用 Setter 方式来注入，
+继续修改 Tom 类的代码：
+public class Tom { private ICourse course;
+public void setCourse(ICourse course) { this.course = course;
+} public void study(){
+course.study();
+}
+}
+看调用代码：
+public static void main(String[] args) { Tom tom = new Tom();
+tom.setCourse(new JavaCourse()); tom.study();
+tom.setCourse(new PythonCourse()); tom.study();
+}
