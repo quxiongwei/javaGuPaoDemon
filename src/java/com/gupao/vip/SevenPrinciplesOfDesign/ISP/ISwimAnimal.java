@@ -1,5 +1,0 @@
-package java.com.gupao.vip.SevenPrinciplesOfDesign.ISP;
-
-public interface ISwimAnimal {
-    void swim();
-}
